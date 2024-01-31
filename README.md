@@ -1,5 +1,5 @@
 # JDx_Quick_Setup
-A Python + Qt app for connecting to, communicating with, and streaming from JDx sensors. This app will work on macOS, Linux, and Windows 10.
+A Python app for connecting to, communicating with, and streaming from JDx sensors. This app will work on macOS, Linux, and Windows 10.
 
 # Useage
 ## Prerequisits
@@ -8,10 +8,9 @@ A Python + Qt app for connecting to, communicating with, and streaming from JDx 
 ## Install and Setup
 + Clone the app to your local machine.
 + Navigate into the app directory. 
-+ Create a local venv in the with "python -m venv venv" (creates a virtual enviroment in ~/venv)
-+ Activate the eviroment using "source venv/Scripts/activate" (linux and macOS) or venv\Scripts\activate (Windows)
++ Create a local venv in the with "python -m venv .venv" (creates a virtual enviroment in ~/.venv)
++ Activate the eviroment using "source .venv/Scripts/activate" (linux and macOS) or .venv\Scripts\activate (Windows)
 + Install modules using "pip install -r requirements.txt"
-+ Run "python main.py" to start the app.
++ Run "python jdx_stream.py" to start the app.
 ## Running the App
-Upon starting the app, select the serial port and the baud rate the sensor has.
-Click the connect button and turn power to the unit on. The splash message should appear.
+The app will scan for the JDI by issuing the ;000,q,q command. Once found, the app will issue the ;000,s,1 command and stream the output of the sensor to the terminal.
