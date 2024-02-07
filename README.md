@@ -9,8 +9,8 @@ A Python app for connecting to, communicating with, and streaming from JDx senso
 + Clone the app to your local machine.
 + Navigate into the app directory. 
 + Create a local venv in the with "python -m venv .venv" (creates a virtual enviroment in ~/.venv)
-+ Activate the eviroment using "source .venv/Scripts/activate" (linux and macOS) or .venv\Scripts\activate (Windows)
++ Activate the eviroment using "source .venv/Scripts/activate" (linux) or .venv\Scripts\activate (Windows)
 + Install modules using "pip install -r requirements.txt"
 + Run "python jdx_stream.py" to start the app.
 ## Running the App
-The app will scan for the JDI by issuing the ;000,q,q command. Once found, the app will issue the ;000,s,1 command and stream the output of the sensor to the terminal.
+The app will scan for the JDI by issuing the ;000,q,q command (defaults to 19200 baud, Even parity, 1 stopbit, and 8 datab bytes). Once found, the app will issue the ;000,s,1 command and stream the output of the sensor to the terminal.
