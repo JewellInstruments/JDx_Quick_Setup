@@ -28,7 +28,7 @@ def serial_read(dev):
 	
 def autodetect_jdx():
 
-	baud = 115200
+	baud = 19200
 	ports_list = list_ports.comports()
 
 	for port, desc, hwid in sorted(ports_list):
