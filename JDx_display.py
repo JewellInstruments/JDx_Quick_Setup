@@ -62,7 +62,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         ############################################################################
         #
         self.actAbout = self.findChild(QtWidgets.QAction, "actionAbout")
-        self.actAbout.triggered.connect(self.AboutPage)
+        self.actAbout.triggered.connect(self.about_page)
 
         self.actExit = self.findChild(QtWidgets.QAction, "actionExit")
         self.actExit.triggered.connect(self.exit)
@@ -186,7 +186,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
             file.write(f"{date_time} - {data}")
         return
 
-    def AboutPage(self):
+    def about_page(self):
         self.about = about_window.About_Window()
         self.about.show()
 
