@@ -5,6 +5,7 @@ import datetime
 import pymodbus
 
 import serial
+from serial import tools as SerialTools
 import serial.tools.list_ports
 
 from PyQt5 import QtWidgets, uic, QtCore
@@ -139,7 +140,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         ############################################################################
 
         self.port_cb = self.findChild(QtWidgets.QComboBox, "port_cb")
-        ports = [port.name for port in serial.tools.list_ports.comports()]
+        ports = [port.name for port in SerialTools.list_ports.comports()]
         self.port_cb.addItems(ports)
 
         self.baud_cb = self.findChild(QtWidgets.QComboBox, "baud_cb")
