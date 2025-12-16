@@ -58,7 +58,7 @@ def read_serial_data(connection: serial.Serial) -> str:
     return connection.readline().decode("utf-8")
 
 def read_modbus_packet(client):
-    result = client.read_holding_registers(address=0x00, count=10, unit=1)
+    result = client.read_holding_registers(address=0x00, count=10)
 
     # Check if the read was successful
     if not result.isError():
