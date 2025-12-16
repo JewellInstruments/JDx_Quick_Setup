@@ -4,6 +4,8 @@ import datetime
 
 import pymodbus
 from pymodbus.client import ModbusSerialClient
+from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.constants import Endian
 
 import serial
 from serial import tools as SerialTools
@@ -29,9 +31,10 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     """
     return serial.Serial(port, baud, parity=parity, timeout=5)
 
-def open_modbus_connection(met: str = 'rtu', pt: str = '9', baud: int = 19200, to:int = 5):
+def open_modbus_connection(pt: str = '9', baud: int = 19200, to:int = 5):
     client = ModbusSerialClient(port=pt, baudrate=baud, timeout=to)
-    client.connect()
+    if client.connected():
+        print("connection worked!"
     return client
 
 def send_serial_data(connection: serial.Serial, packet: str) -> None:
@@ -43,7 +46,10 @@ def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """
     connection.write(packet.encode())
 
-def send_modbus_packet(connection: serial.Serial):
+def send_modbus_packet(client):
+    #Slave Address (1 byte); Function Code 0x06 (1 byte); the Register Address (2 bytes), the value to be written (2 bytes), and a 2-byte checksum
+    #unit_id, function_code, adress, value, check_sum = convert_to_byte(unit_id, function_code, adress, value, check_sum)
+    
     return
 
 def read_serial_data(connection: serial.Serial) -> str:
@@ -58,16 +64,18 @@ def read_serial_data(connection: serial.Serial) -> str:
     return connection.readline().decode("utf-8")
 
 def read_modbus_packet(client):
-    result = client.read_holding_registers(address=0x00, count=10)
-
-    # Check if the read was successful
-    if not result.isError():
-        # Access the registers
-        registers = result.registers
-        print(f"Registers: {registers}")
-    else:
-        print("Error reading registers")
+    x_data = client.read_holding_registers(106, count=2)
+    print(f"x_data is: {x_data}")
+    y_data = client.read_holding_registers(108, count=2)
+    print(f"x_data is: {y_data}")
+    temp = client.read_holding_registers(104, count=2)
+    print(f"x_data is: {temp}")
     return
+
+def convert_ascii_to_modbus(ascii_command:str):
+    ascii_command
+    modbus_command = ascii_command #need to finish this part later
+    return modbus_command
 
 class JDx_Display_Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -123,6 +131,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         self.t_output_le = self.findChild(QtWidgets.QLineEdit, "t_output_le")
         self.address_le = self.findChild(QtWidgets.QLineEdit, "address_le")
         self.log_filepath_le = self.findChild(QtWidgets.QLineEdit, "log_filepath_le")
+        self.unit_id_le = self.findChild(QtWidgets.QLineEdit, "unit_id_le")
 
         date_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filepath = os.path.join(os.path.expanduser("~"), f"JDx_log_{date_time}.txt")
@@ -285,7 +294,8 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
             else:
                 data = self.command_le.text()
                 if self.modbus_ch_bo.isChecked():
-                    send_modbus_packet(self.sensor)
+                    modbus_command = convert_ascii_to_modbus(data)
+                    send_modbus_packet(self.sensor, modbus_command)
                 else:
                     send_serial_data(self.sensor, f"{data}\r\n")
                 if self.modbus_ch_bo.isChecked():

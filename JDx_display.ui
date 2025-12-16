@@ -34,8 +34,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>431</width>
-      <height>381</height>
+      <width>498</width>
+      <height>390</height>
      </rect>
     </property>
     <property name="font">
@@ -44,86 +44,75 @@
      </font>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="3">
-      <widget class="QLabel" name="label_5">
+     <item row="6" column="1" colspan="3">
+      <widget class="QLineEdit" name="log_filepath_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" colspan="2">
+      <widget class="QLineEdit" name="command_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLineEdit" name="t_output_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_6">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>Address</string>
+        <string>T (C)</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="8" column="0" rowspan="2" colspan="4">
-      <widget class="QTextEdit" name="message_te">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
-      <widget class="QLineEdit" name="x_output_le">
+      <widget class="QLabel" name="label_3">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
+       </property>
+       <property name="text">
+        <string>X (deg)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QComboBox" name="baud_cb">
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_7">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
-       <property name="currentText">
-        <string>Baud Rate</string>
+       <property name="text">
+        <string>Command</string>
        </property>
-       <item>
-        <property name="text">
-         <string>Baud Rate</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>9600</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>19200</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>115200</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QLineEdit" name="address_le">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="y_output_le">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -135,7 +124,10 @@
         </font>
        </property>
        <property name="currentText">
-        <string>Parity</string>
+        <string>N</string>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
        </property>
        <item>
         <property name="text">
@@ -164,6 +156,15 @@
        </item>
       </widget>
      </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="y_output_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="connect_pb">
        <property name="font">
@@ -173,21 +174,6 @@
        </property>
        <property name="text">
         <string>Connect</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0" colspan="4">
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Message Prompt</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -209,7 +195,7 @@
        </item>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="label_4">
        <property name="font">
         <font>
@@ -224,38 +210,38 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="label_6">
+     <item row="8" column="0" colspan="4">
+      <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>T (C)</string>
+        <string>Message Prompt</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
+     <item row="3" column="3">
+      <widget class="QLabel" name="label_5">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>X (deg)</string>
+        <string>Address</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QLineEdit" name="t_output_le">
+     <item row="9" column="0" rowspan="2" colspan="4">
+      <widget class="QTextEdit" name="message_te">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -264,22 +250,7 @@
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Command</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1" colspan="2">
-      <widget class="QLineEdit" name="command_le">
+      <widget class="QLineEdit" name="x_output_le">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -287,52 +258,48 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1" colspan="3">
-      <widget class="QLineEdit" name="log_filepath_le">
+     <item row="0" column="2">
+      <widget class="QComboBox" name="baud_cb">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="2">
-      <widget class="QPushButton" name="exit_pb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
+       <property name="currentIndex">
+        <number>2</number>
        </property>
-       <property name="text">
-        <string>Exit</string>
-       </property>
+       <item>
+        <property name="text">
+         <string>Baud Rate</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>9600</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>19200</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>115200</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="4" column="3">
-      <widget class="QPushButton" name="send_pb">
+      <widget class="QLineEdit" name="address_le">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
-       <property name="text">
-        <string>Send</string>
-       </property>
       </widget>
      </item>
-     <item row="6" column="2" colspan="2">
-      <widget class="QPushButton" name="stream_pb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Toggle Data Stream</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="label_8">
        <property name="font">
         <font>
@@ -351,6 +318,72 @@
       <widget class="QCheckBox" name="modbus_ch_bo">
        <property name="text">
         <string>MODBUS?</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2" colspan="2">
+      <widget class="QPushButton" name="stream_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Toggle Data Stream</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QPushButton" name="exit_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Exit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="send_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="unit_id_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>01</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>last 2 digits of SN (for MODBUS only):</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
