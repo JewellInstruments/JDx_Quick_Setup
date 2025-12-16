@@ -2,6 +2,8 @@ import sys
 import os
 import datetime
 
+import pymodbus
+
 import serial
 import serial.tools.list_ports
 
@@ -25,6 +27,10 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     """
     return serial.Serial(port, baud, parity=parity, timeout=5)
 
+def open_modbus_connection(method: str = 'rtu', port: str = '7', baud: int = 19200, timeout:int = 5):
+    client = pymodbus.ModbusSerialClient(method, port, baud, timeout)
+    client.connect()
+    return client
 
 def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """send serial data to device.
@@ -35,6 +41,8 @@ def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """
     connection.write(packet.encode())
 
+def send_modbus_packet(connection: serial.Serial):
+    return
 
 def read_serial_data(connection: serial.Serial) -> str:
     """read serial data from connection.
@@ -47,6 +55,17 @@ def read_serial_data(connection: serial.Serial) -> str:
     """
     return connection.readline().decode("utf-8")
 
+def read_modbus_packet(client):
+    result = client.read_holding_registers(address=0x00, count=10, unit=1)
+
+    # Check if the read was successful
+    if not result.isError():
+        # Access the registers
+        registers = result.registers
+        print(f"Registers: {registers}")
+    else:
+        print("Error reading registers")
+    return
 
 class JDx_Display_Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -131,6 +150,15 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
 
         ############################################################################
 
+        # CHECK BOXES
+        ############################################################################
+
+        self.modbus_ch_bo = self.findChild(QtWidgets.QCheckBox, "modbus_ch_bo")
+
+        ############################################################################
+
+        ############################################################################
+
         # create the plotting widget.
         angle_limit_low = -95
         angle_limit_high = 95
@@ -191,9 +219,16 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         self.about.show()
 
     def update_plot(self):
+        if self.modbus_ch_bo.isChecked():
+            send_modbus_packet(self.sensor)
+        else:
+            send_serial_data(self.sensor, ";000,v,v\r\n")
 
-        send_serial_data(self.sensor, ";000,v,v\r\n")
-        data = read_serial_data(self.sensor).replace("+", "")
+        if self.modbus_ch_bo.isChecked():
+            data = read_modbus_packet(self.sensor)
+            print(f"data = {data}")
+        else:
+            data = read_serial_data(self.sensor).replace("+", "")
         with open(self.log_filepath_le.text(), "a") as file:
             date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"{date_time} - {data}")
@@ -231,8 +266,10 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         port = self.port_cb.currentText()
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
-
-        self.sensor = open_serial_connection(port, baud, parity=parity)
+        if self.modbus_ch_bo.isChecked():
+            self.sensor = open_modbus_connection()
+        else:
+            self.sensor = open_serial_connection(port, baud, parity=parity)
 
         self.message_te.append("Connected!")
         self.connected_to_sensor = True
@@ -245,8 +282,14 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
                 )
             else:
                 data = self.command_le.text()
-                send_serial_data(self.sensor, f"{data}\r\n")
-                data = read_serial_data(self.sensor)
+                if self.modbus_ch_bo.isChecked():
+                    send_modbus_packet(self.sensor)
+                else:
+                    send_serial_data(self.sensor, f"{data}\r\n")
+                if self.modbus_ch_bo.isChecked():
+                    data = read_modbus_packet(self.sensor)
+                else:
+                    data = read_serial_data(self.sensor)
                 self.message_te.append(data)
         else:
             self.message_te.append("Not connected to the sensor.")
