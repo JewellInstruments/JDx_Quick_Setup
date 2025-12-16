@@ -269,7 +269,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
         if self.modbus_ch_bo.isChecked():
-            self.sensor = open_modbus_connection()
+            self.sensor = open_modbus_connection(pt=port, baud=baud)
         else:
             self.sensor = open_serial_connection(port, baud, parity=parity)
 
