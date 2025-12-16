@@ -3,6 +3,7 @@ import os
 import datetime
 
 import pymodbus
+from pymodbus.client.sync import ModbusSerialClient
 
 import serial
 from serial import tools as SerialTools
@@ -29,7 +30,7 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     return serial.Serial(port, baud, parity=parity, timeout=5)
 
 def open_modbus_connection(method: str = 'rtu', port: str = '7', baud: int = 19200, timeout:int = 5):
-    client = pymodbus.ModbusSerialClient(method, port, baud, timeout)
+    client = ModbusSerialClient(method, port, baud, timeout)
     client.connect()
     return client
 
