@@ -30,7 +30,7 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     return serial.Serial(port, baud, parity=parity, timeout=5)
 
 def open_modbus_connection(met: str = 'rtu', pt: str = '9', baud: int = 19200, to:int = 5):
-    client = ModbusSerialClient(method=met, port=pt, baudrate=baud, timeout=to)
+    client = ModbusSerialClient(port=pt, baudrate=baud, timeout=to)
     client.connect()
     return client
 
