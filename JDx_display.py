@@ -3,7 +3,7 @@ import os
 import datetime
 
 import pymodbus
-from pymodbus.client.sync import ModbusSerialClient
+from pymodbus.client import ModbusSerialClient
 
 import serial
 from serial import tools as SerialTools
