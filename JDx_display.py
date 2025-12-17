@@ -4,8 +4,9 @@ import datetime
 
 import pymodbus
 from pymodbus.client import ModbusSerialClient
-from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.constants import Endian
+#from pymodbus.payload import BinaryPayloadDecoder
+#from pymodbus.constants import Endian
+import Modbus_master
 
 import serial
 from serial import tools as SerialTools
@@ -29,13 +30,33 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     Returns:
         serial.Serial: open serial port connection.
     """
-    return serial.Serial(port, baud, parity=parity, timeout=5)
+    found = True
+    return serial.Serial(port, baud, parity=parity, timeout=5), found
 
-def open_modbus_connection(pt: str = '9', baud: int = 19200, to:int = 5):
-    client = ModbusSerialClient(port=pt, baudrate=baud, timeout=to)
-    if client.connected():
-        print("connection worked!"
-    return client
+#def open_modbus_connection(port: str, device:str = 0, baud: int = 19200, parity:int = 'n', data_bit: int = 8, stop_bit:int = 1):
+#    client = ModbusSerialClient(port=port, baudrate=baud, parity=parity, stopbits=stop_bit, timeout=2, bytesize=data_bit)
+#    found = False
+#    if client.connect() is True:
+#        qq = client.read_holding_registers(address=0, count=46, device_id=1, no_response_expected=False)
+#        result = client.read_holding_registers(address=100, count=10, device_id=int(device), no_response_expected=False)
+#        print(f"qq response: {qq.registers}")
+#        print(f"result response: {result.registers}")
+#        #client.close()
+#        print("modbus connection worked")
+#        found = True
+#    return client, found
+
+def open_modbus_connection(port: str, device:int = 1, baud: int = 19200, parity:str = 'E', data_bit: int = 8, stop_bit:int = 1):
+    #modbus_unit_connection = Modbus_master.ModbusMaster(port='COM9', baudrate=19200, timeout=1)# this hardcode works
+    modbus_unit_connection = Modbus_master.ModbusMaster(port=port, baudrate=baud, timeout=stop_bit)
+    found = False
+    if modbus_unit_connection.connect():
+        qq = modbus_unit_connection.read_holding_registers(slave_id=device, start_address=0, count=46) #start adress 0 and count 46 is the qq command
+        stats = modbus_unit_connection.get_statistics()
+        if stats['responses_received'] > 0:
+            #print(f"the qq response is: {qq}")
+            found = True
+    return modbus_unit_connection, found
 
 def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """send serial data to device.
@@ -46,10 +67,8 @@ def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """
     connection.write(packet.encode())
 
-def send_modbus_packet(client):
-    #Slave Address (1 byte); Function Code 0x06 (1 byte); the Register Address (2 bytes), the value to be written (2 bytes), and a 2-byte checksum
-    #unit_id, function_code, adress, value, check_sum = convert_to_byte(unit_id, function_code, adress, value, check_sum)
-    
+def send_modbus_packet(connection: serial.Serial):
+        
     return
 
 def read_serial_data(connection: serial.Serial) -> str:
@@ -63,19 +82,20 @@ def read_serial_data(connection: serial.Serial) -> str:
     """
     return connection.readline().decode("utf-8")
 
-def read_modbus_packet(client):
-    x_data = client.read_holding_registers(106, count=2)
-    print(f"x_data is: {x_data}")
-    y_data = client.read_holding_registers(108, count=2)
-    print(f"x_data is: {y_data}")
-    temp = client.read_holding_registers(104, count=2)
-    print(f"x_data is: {temp}")
+def read_modbus_packet(connection: serial.Serial):
+    #connection.write('01 03 00 00 00 2E C5 D6') #unicode
+    unicode = '01 03 00 00 00 2E C5 D6' #qq
+    unicode = '01 04 00 C8 00 0A FF FF' #read data registers
+    bytes = unicode.encode('utf-8')
+    connection.write(bytes)
+    method_1 = connection.read() #bytes
+    method_2 = connection.readline()
+    method_3 = connection.read_all()
+    print(f"method 1: {method_1}")
+    print(f"method 2: {method_2}")
+    print(f"method 3: {method_3}")
     return
 
-def convert_ascii_to_modbus(ascii_command:str):
-    ascii_command
-    modbus_command = ascii_command #need to finish this part later
-    return modbus_command
 
 class JDx_Display_Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -273,17 +293,21 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         self.line_y.setData(self.time, self.angle_y)
 
     def connect_to_sensor(self):
-
         port = self.port_cb.currentText()
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
         if self.modbus_ch_bo.isChecked():
-            self.sensor = open_modbus_connection(pt=port, baud=baud)
+            self.sensor, found = open_modbus_connection(port, int(self.unit_id_le.text()), baud, parity)
         else:
-            self.sensor = open_serial_connection(port, baud, parity=parity)
+            self.sensor, found = open_serial_connection(port, baud, parity=parity)
 
-        self.message_te.append("Connected!")
-        self.connected_to_sensor = True
+        if found is True:
+            self.message_te.append("Connected!")
+            self.connected_to_sensor = True
+        else:
+            self.message_te.append("Failed to connect to unit!")
+
+        
 
     def send_command(self):
         if self.connected_to_sensor is True:
@@ -294,8 +318,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
             else:
                 data = self.command_le.text()
                 if self.modbus_ch_bo.isChecked():
-                    modbus_command = convert_ascii_to_modbus(data)
-                    send_modbus_packet(self.sensor, modbus_command)
+                    send_modbus_packet(self.sensor, data)
                 else:
                     send_serial_data(self.sensor, f"{data}\r\n")
                 if self.modbus_ch_bo.isChecked():
