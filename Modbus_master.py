@@ -16,7 +16,7 @@ class ModbusRTU:
     WRITE_MULTIPLE_COILS = 0x0F
     WRITE_MULTIPLE_REGISTERS = 0x10
     
-    def __init__(self, port: str, baudrate: int = 9600, timeout: float = 1.0):
+    def __init__(self, port: str, baudrate: int = 9600, timeout: float = 3):
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
@@ -66,12 +66,20 @@ class ModbusRTU:
             return False
             
         data = frame[:-2]
-        received_crc = struct.unpack('<H', frame[-2:])[0]
+        try:
+            received_crc = struct.unpack('<H', frame[-2:])[0]
+        except Exception as e:
+            error = (
+                f"ERROR :::: {e.__traceback__.tb_lineno} - {e}"
+            )
+            print(error)
+            received_crc = 0
+            # raise
         calculated_crc = self._calculate_crc(data)
         
         return received_crc == calculated_crc
         
-    def _send_frame(self, frame: bytes) -> Optional[bytes]:
+    def _send_frame(self, frame: bytes, read_size: int = 1000) -> Optional[bytes]:
         """Send frame and receive response"""
         if not self.serial:
             return None
@@ -90,7 +98,7 @@ class ModbusRTU:
             time.sleep(max(min_delay, 0.001))
             
             # Read response
-            response = self.serial.read(1000)  # Read available data
+            response = self.serial.read(read_size).hex(' ')  # Read available data
             
             return response
             
@@ -104,14 +112,15 @@ class ModbusRTU:
             return None
             
         # Validate CRC
-        if not self._validate_frame(response):
-            print("❌ CRC validation failed")
-            return None
+        # if not self._validate_frame(response):
+        #     print("❌ CRC validation failed")
+        #     return None
             
         slave_id = response[0]
         function_code = response[1]
         
         # Check for exception response
+        print(int(function_code).to_bytes(2, byteorder='big'))
         if function_code & 0x80:
             exception_code = response[2] if len(response) > 2 else 0
             print(f"❌ Modbus exception: {self._get_exception_message(exception_code)}")
@@ -245,30 +254,19 @@ class ModbusMaster(ModbusRTU):
             
         data = struct.pack('>HH', start_address, count)
         frame = self._build_frame(slave_id, self.READ_HOLDING_REGISTERS, data)
-        
+        data_count = ((count*2)+3)
         response = self._send_frame(frame)
+        #print(f"response is: {response}")
         self.statistics['requests_sent'] += 1
         
         if not response:
             self.statistics['timeouts'] += 1
             return None
-            
-        data = self._parse_response(response, self.READ_HOLDING_REGISTERS)
-        if data is None:
-            return None
-            
-        self.statistics['responses_received'] += 1
-        
-        byte_count = data[0]
-        register_bytes = data[1:1+byte_count]
-        
-        registers = []
-        for i in range(0, len(register_bytes), 2):
-            if i + 1 < len(register_bytes):
-                value = struct.unpack('>H', register_bytes[i:i+2])[0]
-                registers.append(value)
-                
-        return registers
+
+        if len(response) > 0:   
+            self.statistics['responses_received'] += 1
+
+        return response 
         
     def read_input_registers(self, slave_id: int, start_address: int, count: int) -> Optional[List[int]]:
         """Read input registers"""

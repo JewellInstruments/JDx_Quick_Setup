@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1095</width>
-    <height>448</height>
+    <width>1119</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="PlotWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>470</x>
       <y>10</y>
       <width>631</width>
       <height>381</height>
@@ -34,7 +34,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>431</width>
+      <width>451</width>
       <height>390</height>
      </rect>
     </property>
@@ -44,8 +44,33 @@
      </font>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="6" column="1" colspan="3">
-      <widget class="QLineEdit" name="log_filepath_le">
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Log File Path</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4" alignment="Qt::AlignHCenter">
+      <widget class="QCheckBox" name="modbus_ch_bo">
+       <property name="text">
+        <string>MODBUS?</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QLineEdit" name="address_le">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -53,8 +78,112 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="2">
+      <widget class="QComboBox" name="baud_cb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Baud Rate</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>9600</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>19200</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>115200</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="ascii_send_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="unit_id_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2" colspan="2">
+      <widget class="QPushButton" name="stream_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Toggle Data Stream</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="2">
+      <widget class="QPushButton" name="exit_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Exit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>device id (last 2 digits of SN [for MODBUS only]):</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="5" column="1" colspan="2">
-      <widget class="QLineEdit" name="command_le">
+      <widget class="QLineEdit" name="ascii_command_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1" colspan="3">
+      <widget class="QLineEdit" name="log_filepath_le">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -86,36 +215,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>X (deg)</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Command</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
       <widget class="QComboBox" name="parity_cb">
        <property name="font">
@@ -124,10 +223,10 @@
         </font>
        </property>
        <property name="currentText">
-        <string>E</string>
+        <string>Parity</string>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
@@ -156,6 +255,21 @@
        </item>
       </widget>
      </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Ascii Command</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="y_output_le">
        <property name="font">
@@ -165,15 +279,18 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="connect_pb">
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>Connect</string>
+        <string>X (deg)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -195,6 +312,33 @@
        </item>
       </widget>
      </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="connect_pb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0" colspan="4">
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Message Prompt</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="3" column="1">
       <widget class="QLabel" name="label_4">
        <property name="font">
@@ -210,18 +354,21 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0" colspan="4">
-      <widget class="QLabel" name="label_2">
+     <item row="10" column="0" rowspan="2" colspan="4">
+      <widget class="QTextEdit" name="message_te">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
-       <property name="text">
-        <string>Message Prompt</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLineEdit" name="x_output_le">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
        </property>
       </widget>
      </item>
@@ -240,116 +387,8 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0" rowspan="2" colspan="4">
-      <widget class="QTextEdit" name="message_te">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLineEdit" name="x_output_le">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QComboBox" name="baud_cb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="currentIndex">
-        <number>2</number>
-       </property>
-       <item>
-        <property name="text">
-         <string>Baud Rate</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>9600</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>19200</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>115200</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="4" column="3">
-      <widget class="QLineEdit" name="address_le">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Log File Path</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="4" alignment="Qt::AlignHCenter">
-      <widget class="QCheckBox" name="modbus_ch_bo">
-       <property name="text">
-        <string>MODBUS?</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="2" colspan="2">
-      <widget class="QPushButton" name="stream_pb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Toggle Data Stream</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0" colspan="2">
-      <widget class="QPushButton" name="exit_pb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Exit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QPushButton" name="send_pb">
+     <item row="6" column="3">
+      <widget class="QPushButton" name="modbus_send_pb">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -360,31 +399,49 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
-      <widget class="QLineEdit" name="unit_id_le">
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_10">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>01</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="3">
-      <widget class="QLabel" name="label_9">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>last 2 digits of SN (for MODBUS only):</string>
+        <string>MODBUS Command</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
+      </widget>
+     </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QComboBox" name="modbus_commands_cb">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="currentText">
+        <string>Command List</string>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Command List</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Query Device Info</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Get current values</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
@@ -395,8 +452,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1095</width>
-     <height>26</height>
+     <width>1119</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -2,10 +2,7 @@ import sys
 import os
 import datetime
 
-import pymodbus
-from pymodbus.client import ModbusSerialClient
-#from pymodbus.payload import BinaryPayloadDecoder
-#from pymodbus.constants import Endian
+import struct
 import Modbus_master
 
 import serial
@@ -18,6 +15,36 @@ import pyqtgraph
 
 import about_window
 
+def convert_bits_to_readable_string(bits: str):
+    bits_string = bits.replace(" ", "") #remove spaces
+    xdata = bits_string[30:38]
+    ydata = bits_string[38:46]
+    tempdata = bits_string[22:30]
+    xdata_float_value = hex_to_float_be(xdata)
+    ydata_float_value = hex_to_float_be(ydata)
+    tempdata_float_value = hex_to_float_be(tempdata)
+    return str(xdata_float_value), str(ydata_float_value), str(tempdata_float_value)
+
+def hex_to_float_be(hex_string):
+    """
+    Converts a big-endian hex string to a float.
+    Assumes single-precision float (4 bytes/8 hex characters).
+    """
+    # Ensure the hex string has an even number of characters and is the correct length for a float
+    if len(hex_string) != 8:
+        raise ValueError(
+            "Hex string must be 8 characters long for a single-precision float"
+        )
+
+    # Convert the hex string to a bytes object
+    bytes_data = bytes.fromhex(hex_string)
+
+    # Unpack the bytes object as a big-endian float
+    # '>' means big-endian, 'f' means float
+    # The result is a tuple, so we take the first element
+    float_value = struct.unpack(">f", bytes_data)[0]
+
+    return float_value
 
 def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     """open serial port to JDx sensor.
@@ -32,19 +59,6 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     """
     found = True
     return serial.Serial(port, baud, parity=parity, timeout=5), found
-
-#def open_modbus_connection(port: str, device:str = 0, baud: int = 19200, parity:int = 'n', data_bit: int = 8, stop_bit:int = 1):
-#    client = ModbusSerialClient(port=port, baudrate=baud, parity=parity, stopbits=stop_bit, timeout=2, bytesize=data_bit)
-#    found = False
-#    if client.connect() is True:
-#        qq = client.read_holding_registers(address=0, count=46, device_id=1, no_response_expected=False)
-#        result = client.read_holding_registers(address=100, count=10, device_id=int(device), no_response_expected=False)
-#        print(f"qq response: {qq.registers}")
-#        print(f"result response: {result.registers}")
-#        #client.close()
-#        print("modbus connection worked")
-#        found = True
-#    return client, found
 
 def open_modbus_connection(port: str, device:int = 1, baud: int = 19200, parity:str = 'E', data_bit: int = 8, stop_bit:int = 1):
     #modbus_unit_connection = Modbus_master.ModbusMaster(port='COM9', baudrate=19200, timeout=1)# this hardcode works
@@ -67,9 +81,22 @@ def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """
     connection.write(packet.encode())
 
-def send_modbus_packet(connection: serial.Serial):
+def send_modbus_packet(connection: Modbus_master.ModbusMaster, device:int, command):
+    if command == "Command List":
+        return False, "null response"
+    try:
+        if command == "Query Device Info":
+            raw_response = connection.read_holding_registers(slave_id=device, start_address=0, count=46) #start adress 0 and count 46 is the qq command
+            response = raw_response.replace(" ", "").hex()
+        elif command == "Get current values":
+            raw_response = connection.read_holding_registers(slave_id=device, start_address=200, count=10) #start adress 0 and count 46 is the qq command
+            x_readble, y_readble, temp_readble = convert_bits_to_readable_string(raw_response)
+            response = "X: " + x_readble + ", Y: " + y_readble + ", Temp: " + temp_readble
+    except Exception as e:
+        return False, "null response"
         
-    return
+
+    return True, response
 
 def read_serial_data(connection: serial.Serial) -> str:
     """read serial data from connection.
@@ -82,19 +109,11 @@ def read_serial_data(connection: serial.Serial) -> str:
     """
     return connection.readline().decode("utf-8")
 
-def read_modbus_packet(connection: serial.Serial):
-    #connection.write('01 03 00 00 00 2E C5 D6') #unicode
-    unicode = '01 03 00 00 00 2E C5 D6' #qq
-    unicode = '01 04 00 C8 00 0A FF FF' #read data registers
-    bytes = unicode.encode('utf-8')
-    connection.write(bytes)
-    method_1 = connection.read() #bytes
-    method_2 = connection.readline()
-    method_3 = connection.read_all()
-    print(f"method 1: {method_1}")
-    print(f"method 2: {method_2}")
-    print(f"method 3: {method_3}")
-    return
+def read_modbus_packet(connection: Modbus_master.ModbusMaster, device:int):
+    current_raw_values = connection.read_holding_registers(slave_id=device, start_address=200, count=10)
+    x_readble, y_readble, temp_readble = convert_bits_to_readable_string(current_raw_values)
+    data = ",,," + x_readble + "," + y_readble + "," + temp_readble #needs weird format to match the serial communication side later
+    return data
 
 
 class JDx_Display_Window(QtWidgets.QMainWindow):
@@ -130,8 +149,11 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         self.connect_pb = self.findChild(QtWidgets.QPushButton, "connect_pb")
         self.connect_pb.clicked.connect(self.connect_to_sensor)
 
-        self.send_pb = self.findChild(QtWidgets.QPushButton, "send_pb")
-        self.send_pb.clicked.connect(self.send_command)
+        self.ascii_send_pb = self.findChild(QtWidgets.QPushButton, "ascii_send_pb")
+        self.ascii_send_pb.clicked.connect(self.send_command)
+
+        self.modbus_send_pb = self.findChild(QtWidgets.QPushButton, "modbus_send_pb")
+        self.modbus_send_pb.clicked.connect(self.send_command)
 
         self.exit_pb = self.findChild(QtWidgets.QPushButton, "exit_pb")
         self.exit_pb.clicked.connect(self.exit)
@@ -145,7 +167,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         # LINE EDITS
         ############################################################################
 
-        self.command_le = self.findChild(QtWidgets.QLineEdit, "command_le")
+        self.ascii_command_le = self.findChild(QtWidgets.QLineEdit, "ascii_command_le")
         self.x_output_le = self.findChild(QtWidgets.QLineEdit, "x_output_le")
         self.y_output_le = self.findChild(QtWidgets.QLineEdit, "y_output_le")
         self.t_output_le = self.findChild(QtWidgets.QLineEdit, "t_output_le")
@@ -176,6 +198,8 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         self.baud_cb = self.findChild(QtWidgets.QComboBox, "baud_cb")
 
         self.parity_cb = self.findChild(QtWidgets.QComboBox, "parity_cb")
+
+        self.modbus_commands_cb = self.findChild(QtWidgets.QComboBox, "modbus_commands_cb")
 
         ############################################################################
 
@@ -231,7 +255,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         )
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(100)
+        self.timer.setInterval(50)
         self.timer.timeout.connect(self.update_plot)
 
         self.connected_to_sensor = False
@@ -251,15 +275,11 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
 
     def update_plot(self):
         if self.modbus_ch_bo.isChecked():
-            send_modbus_packet(self.sensor)
+            data = read_modbus_packet(self.sensor, int(self.unit_id_le.text()))
         else:
             send_serial_data(self.sensor, ";000,v,v\r\n")
-
-        if self.modbus_ch_bo.isChecked():
-            data = read_modbus_packet(self.sensor)
-            print(f"data = {data}")
-        else:
             data = read_serial_data(self.sensor).replace("+", "")
+
         with open(self.log_filepath_le.text(), "a") as file:
             date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"{date_time} - {data}")
@@ -297,6 +317,9 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
         if self.modbus_ch_bo.isChecked():
+            if self.unit_id_le == "":
+                self.message_te.append("cannot connect! no device id specified")
+                return
             self.sensor, found = open_modbus_connection(port, int(self.unit_id_le.text()), baud, parity)
         else:
             self.sensor, found = open_serial_connection(port, baud, parity=parity)
@@ -316,15 +339,18 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
                     "Cannot send command while app is streaming data. Please turn streaming off before sending commands."
                 )
             else:
-                data = self.command_le.text()
                 if self.modbus_ch_bo.isChecked():
-                    send_modbus_packet(self.sensor, data)
+                    command = self.modbus_commands_cb.currentText()
+                    sucess, data = send_modbus_packet(self.sensor, int(self.unit_id_le.text()), command)
+                    if sucess is False:
+                        self.message_te.append("Unit failed to respond to the command")
+                        return
                 else:
-                    send_serial_data(self.sensor, f"{data}\r\n")
-                if self.modbus_ch_bo.isChecked():
-                    data = read_modbus_packet(self.sensor)
-                else:
+                    command = self.ascii_command_le.text()
+                    send_serial_data(self.sensor, f"{command}\r\n")
                     data = read_serial_data(self.sensor)
+                
+                    
                 self.message_te.append(data)
         else:
             self.message_te.append("Not connected to the sensor.")
