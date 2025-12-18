@@ -15,7 +15,19 @@ import pyqtgraph
 
 import about_window
 
-def convert_bits_to_readable_string(bits: str):
+def convert_device_info_bits_to_readable_string(bits: str):
+    bits_string = bits.replace(" ", "") #remove spaces
+    model_number = bits_string[6:38]
+    mfr_date = bits_string[38:70]
+    cal_date = bits_string[70:102]
+    serial_number = bits_string[102:134]
+    model_number_string_value = hex_to_string_be(model_number)
+    mfr_date_string_value = hex_to_string_be(mfr_date)
+    cal_date_string_value = hex_to_string_be(cal_date)
+    serial_number_string_value = hex_to_string_be(serial_number)
+    return model_number_string_value, mfr_date_string_value, cal_date_string_value, serial_number_string_value
+
+def convert_current_value_bits_to_readable_string(bits: str):
     bits_string = bits.replace(" ", "") #remove spaces
     xdata = bits_string[30:38]
     ydata = bits_string[38:46]
@@ -25,6 +37,19 @@ def convert_bits_to_readable_string(bits: str):
     tempdata_float_value = hex_to_float_be(tempdata)
     return str(xdata_float_value), str(ydata_float_value), str(tempdata_float_value)
 
+def hex_to_string_be(hex_string):
+    string_value = ""
+    #bytes_data = bytes.fromhex(hex_string)
+    while len(hex_string) >= 2:
+        bit = hex_string[:2]
+        hex_string = hex_string[2:]
+        bytes_data = bytes.fromhex(bit)
+        converted_bit = struct.unpack(">c", bytes_data)[0]
+        bit_string_length = len(str(converted_bit))
+        if bit_string_length == 4:
+            string_value = string_value + str(converted_bit)[2]
+    return string_value
+    
 def hex_to_float_be(hex_string):
     """
     Converts a big-endian hex string to a float.
@@ -61,16 +86,17 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
     return serial.Serial(port, baud, parity=parity, timeout=5), found
 
 def open_modbus_connection(port: str, device:int = 1, baud: int = 19200, parity:str = 'E', data_bit: int = 8, stop_bit:int = 1):
-    #modbus_unit_connection = Modbus_master.ModbusMaster(port='COM9', baudrate=19200, timeout=1)# this hardcode works
     modbus_unit_connection = Modbus_master.ModbusMaster(port=port, baudrate=baud, timeout=stop_bit)
     found = False
     if modbus_unit_connection.connect():
         qq = modbus_unit_connection.read_holding_registers(slave_id=device, start_address=0, count=46) #start adress 0 and count 46 is the qq command
         stats = modbus_unit_connection.get_statistics()
         if stats['responses_received'] > 0:
-            #print(f"the qq response is: {qq}")
+            model_number,  mfr_date, cal_date, serial_number = convert_device_info_bits_to_readable_string(qq)
             found = True
-    return modbus_unit_connection, found
+        else:
+            modbus_unit_connection.close()
+    return modbus_unit_connection, found, model_number, serial_number
 
 def send_serial_data(connection: serial.Serial, packet: str) -> None:
     """send serial data to device.
@@ -85,14 +111,21 @@ def send_modbus_packet(connection: Modbus_master.ModbusMaster, device:int, comma
     if command == "Command List":
         return False, "null response"
     try:
-        if command == "Query Device Info":
+        if command == "Get device info":
             raw_response = connection.read_holding_registers(slave_id=device, start_address=0, count=46) #start adress 0 and count 46 is the qq command
-            response = raw_response.replace(" ", "").hex()
+            model_number,  mfr_date, cal_date, serial_number = convert_device_info_bits_to_readable_string(raw_response)
+            response = "model number: " + model_number + ", mfr date: " + mfr_date + ", cal date: " + cal_date + ", serial number: " + serial_number
         elif command == "Get current values":
             raw_response = connection.read_holding_registers(slave_id=device, start_address=200, count=10) #start adress 0 and count 46 is the qq command
-            x_readble, y_readble, temp_readble = convert_bits_to_readable_string(raw_response)
+            x_readble, y_readble, temp_readble = convert_current_value_bits_to_readable_string(raw_response)
             response = "X: " + x_readble + ", Y: " + y_readble + ", Temp: " + temp_readble
+        elif command == "Disconnect":
+            connection.close()
+            response = "Device disconnected!"
+
+
     except Exception as e:
+        print(f"the following error occured: {e}")
         return False, "null response"
         
 
@@ -111,7 +144,7 @@ def read_serial_data(connection: serial.Serial) -> str:
 
 def read_modbus_packet(connection: Modbus_master.ModbusMaster, device:int):
     current_raw_values = connection.read_holding_registers(slave_id=device, start_address=200, count=10)
-    x_readble, y_readble, temp_readble = convert_bits_to_readable_string(current_raw_values)
+    x_readble, y_readble, temp_readble = convert_current_value_bits_to_readable_string(current_raw_values)
     data = ",,," + x_readble + "," + y_readble + "," + temp_readble #needs weird format to match the serial communication side later
     return data
 
@@ -316,16 +349,28 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         port = self.port_cb.currentText()
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
+        if self.connected_to_sensor is True:
+            self.message_te.append("Already connected to the unit!")
+            return
         if self.modbus_ch_bo.isChecked():
-            if self.unit_id_le == "":
-                self.message_te.append("cannot connect! no device id specified")
+            if len(self.unit_id_le.text()) != 2:
+                self.message_te.append("Cannot connect! Invalid device id specified")
                 return
-            self.sensor, found = open_modbus_connection(port, int(self.unit_id_le.text()), baud, parity)
+            self.sensor, found, model_number, serial_number = open_modbus_connection(port, int(self.unit_id_le.text()), baud, parity)
         else:
             self.sensor, found = open_serial_connection(port, baud, parity=parity)
 
         if found is True:
-            self.message_te.append("Connected!")
+            if self.modbus_ch_bo.isChecked():
+                self.message_te.append(f"Connected to unit: {serial_number}")
+                try:
+                    unit_range = (float(model_number[-5:]))
+                    self.plot.setYRange((unit_range*-1.1), unit_range*1.1)
+                    self.message_te.append(f"Display range set to: +/-{unit_range}")
+                except Exception as e:
+                    unit_range = 95
+            else:
+                self.message_te.append("Connected!")
             self.connected_to_sensor = True
         else:
             self.message_te.append("Failed to connect to unit!")
@@ -349,7 +394,8 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
                     command = self.ascii_command_le.text()
                     send_serial_data(self.sensor, f"{command}\r\n")
                     data = read_serial_data(self.sensor)
-                
+                if data == "Device disconnected!":
+                    self.connected_to_sensor = False
                     
                 self.message_te.append(data)
         else:

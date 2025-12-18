@@ -33,10 +33,10 @@ class ModbusRTU:
                 stopbits=serial.STOPBITS_ONE,
                 timeout=self.timeout
             )
-            print(f"✅ Connected to Modbus RTU on {self.port}")
+            #print(f"✅ Connected to Modbus RTU on {self.port}")
             return True
         except Exception as e:
-            print(f"❌ Failed to connect: {e}")
+            #print(f"❌ Failed to connect: {e}")
             return False
             
     def _calculate_crc(self, data: bytes) -> int:
@@ -474,7 +474,7 @@ class ModbusMaster(ModbusRTU):
         """Close Modbus connection"""
         if self.serial:
             self.serial.close()
-            print("Modbus connection closed")
+            #print("Modbus connection closed")
 
 # Example usage
 #modbus = ModbusMaster('/dev/ttyUSB0', 9600)

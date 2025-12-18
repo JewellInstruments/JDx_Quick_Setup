@@ -434,12 +434,17 @@
        </item>
        <item>
         <property name="text">
-         <string>Query Device Info</string>
+         <string>Get device info</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Get current values</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Disconnect</string>
         </property>
        </item>
       </widget>
