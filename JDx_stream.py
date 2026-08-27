@@ -1,6 +1,6 @@
-import serial
 import time
 
+import serial
 from serial.tools import list_ports
 
 
@@ -17,7 +17,6 @@ def open_serial_port(port, baud):
 def serial_send(dev, packet):
 
     dev.write(packet.encode())
-    return
 
 
 def serial_read(dev):
@@ -40,8 +39,7 @@ def autodetect_jdx():
                 if data != "":
                     print("Port found")
                     break
-                else:
-                    dev.close()
+                dev.close()
         except Exception as e:
             print(e)
 

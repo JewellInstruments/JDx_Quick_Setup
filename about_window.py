@@ -1,18 +1,16 @@
-import os
 import logging
+import os
 
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QPixmap
-
 
 # the about window is used to display program information to the user
 
 
 class About_Window(QtWidgets.QMainWindow):
-
     # init the window
     def __init__(self):
-        super(About_Window, self).__init__()
+        super().__init__()
 
         # get the base path to where the source is.
         # this path is different when compiled
@@ -21,7 +19,6 @@ class About_Window(QtWidgets.QMainWindow):
         __AUTHOR__ = "Lucas Jameson"
 
         try:
-
             ui_file = os.path.join("about.ui")
 
             uic.loadUi(ui_file, self)

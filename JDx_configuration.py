@@ -1,20 +1,18 @@
-import sys
-import os
 import datetime
-
-import serial
-import serial.tools.list_ports
-
-from PyQt5 import QtWidgets, uic, QtCore
+import os
+import sys
 
 import pyqtgraph
 import pyqtgraph.exporters
+import serial
+import serial.tools.list_ports
+from PyQt5 import QtCore, QtWidgets, uic
 
 import about_window
 
 
 def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
-    """open serial port to JDx sensor.
+    """Open serial port to JDx sensor.
 
     Args:
         port (str): physical serial port
@@ -23,35 +21,38 @@ def open_serial_connection(port: str, baud: int, parity: str) -> serial.Serial:
 
     Returns:
         serial.Serial: open serial port connection.
+
     """
     return serial.Serial(port, baud, parity=parity, timeout=5)
 
 
 def send_serial_data(connection: serial.Serial, packet: str) -> None:
-    """send serial data to device.
+    """Send serial data to device.
 
     Args:
         connection (serial.Serial): open serial connection
         packet (str): data to send over connection.
+
     """
     connection.write(packet.encode())
 
 
 def read_serial_data(connection: serial.Serial) -> str:
-    """read serial data from connection.
+    """Read serial data from connection.
 
     Args:
         connection (serial.Serial): open serial connection
 
     Returns:
         str: data returned from open serial connection
+
     """
     return connection.readline().decode("utf-8")
 
 
 class JDx_Configuration_Window(QtWidgets.QMainWindow):
     def __init__(self):
-        super(JDx_Configuration_Window, self).__init__()
+        super().__init__()
 
         # get the path to the ui file
         ui_file = "JDx_configuration.ui"
@@ -71,7 +72,8 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.actExit.triggered.connect(self.exit)
 
         self.actionDownload_Settings = self.findChild(
-            QtWidgets.QAction, "actionDownload_Settings"
+            QtWidgets.QAction,
+            "actionDownload_Settings",
         )
         self.actionDownload_Settings.triggered.connect(self.dump_settings)
 
@@ -96,7 +98,8 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.dump_lut_pb.clicked.connect(self.update_plot)
 
         self.dump_settings_pb = self.findChild(
-            QtWidgets.QPushButton, "dump_settings_pb"
+            QtWidgets.QPushButton,
+            "dump_settings_pb",
         )
         self.dump_settings_pb.clicked.connect(self.dump_settings)
 
@@ -113,29 +116,42 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.model_le = self.findChild(QtWidgets.QLineEdit, "model_le")
         self.mfg_date_le = self.findChild(QtWidgets.QLineEdit, "mfg_date_le")
         self.serial_no_le = self.findChild(QtWidgets.QLineEdit, "serial_no_le")
-        self.fw_version_le = self.findChild(QtWidgets.QLineEdit, "fw_version_le")
+        self.fw_version_le = self.findChild(
+            QtWidgets.QLineEdit,
+            "fw_version_le",
+        )
         self.bandwidth_le = self.findChild(QtWidgets.QLineEdit, "bandwidth_le")
 
         self.maf_le = self.findChild(QtWidgets.QLineEdit, "maf_le")
-        self.maf_length_le = self.findChild(QtWidgets.QLineEdit, "maf_length_le")
+        self.maf_length_le = self.findChild(
+            QtWidgets.QLineEdit,
+            "maf_length_le",
+        )
         self.status_le = self.findChild(QtWidgets.QLineEdit, "status_le")
-        self.decimation_le = self.findChild(QtWidgets.QLineEdit, "decimation_le")
+        self.decimation_le = self.findChild(
+            QtWidgets.QLineEdit,
+            "decimation_le",
+        )
 
         self.g_vector_le = self.findChild(QtWidgets.QLineEdit, "g_vector_le")
         self.temp_sensor_gain_le = self.findChild(
-            QtWidgets.QLineEdit, "temp_sensor_gain_le"
+            QtWidgets.QLineEdit,
+            "temp_sensor_gain_le",
         )
         self.temp_sensor_offset_le = self.findChild(
-            QtWidgets.QLineEdit, "temp_sensor_offset_le"
+            QtWidgets.QLineEdit,
+            "temp_sensor_offset_le",
         )
         self.odr_le = self.findChild(QtWidgets.QLineEdit, "odr_le")
 
         self.streaming_status_le = self.findChild(
-            QtWidgets.QLineEdit, "streaming_status_le"
+            QtWidgets.QLineEdit,
+            "streaming_status_le",
         )
         self.test_mode_le = self.findChild(QtWidgets.QLineEdit, "test_mode_le")
         self.relative_offset_le = self.findChild(
-            QtWidgets.QLineEdit, "relative_offset_le"
+            QtWidgets.QLineEdit,
+            "relative_offset_le",
         )
 
         self.O_x_le = self.findChild(QtWidgets.QLineEdit, "O_x_le")
@@ -162,7 +178,10 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.y_cal_temp_2 = self.findChild(QtWidgets.QLineEdit, "y_cal_temp_2")
         self.y_cal_temp_3 = self.findChild(QtWidgets.QLineEdit, "y_cal_temp_3")
 
-        self.log_filepath_le = self.findChild(QtWidgets.QLineEdit, "log_filepath_le")
+        self.log_filepath_le = self.findChild(
+            QtWidgets.QLineEdit,
+            "log_filepath_le",
+        )
 
         date_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filepath = os.path.join(self.base, f"JDx_log_{date_time}.txt")
@@ -198,7 +217,9 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
 
         self.diff_plot = self.findChild(QtWidgets.QWidget, "diff_plot_pw")
         self.diff_plot.setTitle(
-            "Deviation from Nominal vs ADC Counts", color="w", size="18pt"
+            "Deviation from Nominal vs ADC Counts",
+            color="w",
+            size="18pt",
         )
         styles = {"color": "white", "font-size": "18px"}
         self.diff_plot.setLabel("left", "Deviation (counts) (x1000)", **styles)
@@ -378,15 +399,12 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.show()
 
     def about_page(self):
-        """open the about page."""
+        """Open the about page."""
         self.about = about_window.About_Window()
         self.about.show()
 
     def dump_settings(self):
-        """
-        Summary: this method sends some query commands to the JDx sensor and loads the results into the respective line edits.
-        """
-
+        """Summary: this method sends some query commands to the JDx sensor and loads the results into the respective line edits."""
         self.message_te.append("Dumping settings from the sensor.")
 
         data = self.query_and_log_response(";000,q,q\r\n")
@@ -428,7 +446,7 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         # get the orthorenormalization matrix
         for i in range(3):
             data = self.query_and_log_response(
-                f";000,q,ma{i}\r\n"
+                f";000,q,ma{i}\r\n",
             )  # get orthonormalization matrix
             # parse the data string.
             data = data.replace(" ", "").split(":")[1].split(",")
@@ -453,13 +471,14 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.O_z_le.setText(f"{float(data[2]):.5f}")
 
     def query_and_log_response(self, arg: str) -> str:
-        """send ascii data to sensor through serial port and read/log to file the response.
+        """Send ascii data to sensor through serial port and read/log to file the response.
 
         Args:
             arg (str): string to be sent to sensor.
 
         Returns:
             str: response from the sensor.
+
         """
         # query the basic stuff
         send_serial_data(self.sensor, arg)
@@ -471,12 +490,13 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         return result
 
     def get_cal_temps(self, data: str) -> None:
-        """parse the data string and get the temps at which the sensor was calibrated. These values come from the
+        """Parse the data string and get the temps at which the sensor was calibrated. These values come from the
         LUT output.
 
 
         Args:
             data (str): line from the LUT output stream.
+
         """
         if "Axis Temperatures" in data:
             if "X Axis" in data:
@@ -497,9 +517,7 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
                 self.y_cal_temp_3.setText(temp_3)
 
     def get_lut_from_sensor(self):
-        """
-        get the LUT from the sensor. The data will hammer the serial port until the "success,end of LUT" massage appears.
-        """
+        """Get the LUT from the sensor. The data will hammer the serial port until the "success,end of LUT" massage appears."""
         self.counts_x_temp_1 = []
         self.lut_x_temp_1 = []
         self.counts_y_temp_1 = []
@@ -522,7 +540,9 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         while True:
             data = read_serial_data(self.sensor).replace("+", "")
             with open(self.log_filepath_le.text(), "a") as file:
-                date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                date_time = datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S",
+                )
                 file.write(f"{date_time} - {data}")
 
             if "057,?,success,end of LUT" in data or "Z Axis" in data:
@@ -555,42 +575,67 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
                     self.lut_y_temp_3.append(float(data[5]))
 
     def get_deviations(self):
-        """
-        Compute and plot the deviations for all the LUT points from room temp.
-        """
+        """Compute and plot the deviations for all the LUT points from room temp."""
         self.nominal_x = self.counts_x_temp_2
         self.nominal_y = self.counts_y_temp_2
         for i in range(len(self.counts_x_temp_1)):
-            self.deviations_x_temp_1.append(self.nominal_x[i] - self.counts_x_temp_1[i])
-            self.deviations_y_temp_1.append(self.nominal_y[i] - self.counts_y_temp_1[i])
+            self.deviations_x_temp_1.append(
+                self.nominal_x[i] - self.counts_x_temp_1[i],
+            )
+            self.deviations_y_temp_1.append(
+                self.nominal_y[i] - self.counts_y_temp_1[i],
+            )
 
-            self.deviations_x_temp_2.append(self.nominal_x[i] - self.counts_x_temp_2[i])
-            self.deviations_y_temp_2.append(self.nominal_y[i] - self.counts_y_temp_2[i])
+            self.deviations_x_temp_2.append(
+                self.nominal_x[i] - self.counts_x_temp_2[i],
+            )
+            self.deviations_y_temp_2.append(
+                self.nominal_y[i] - self.counts_y_temp_2[i],
+            )
 
-            self.deviations_x_temp_3.append(self.nominal_x[i] - self.counts_x_temp_3[i])
-            self.deviations_y_temp_3.append(self.nominal_y[i] - self.counts_y_temp_3[i])
+            self.deviations_x_temp_3.append(
+                self.nominal_x[i] - self.counts_x_temp_3[i],
+            )
+            self.deviations_y_temp_3.append(
+                self.nominal_y[i] - self.counts_y_temp_3[i],
+            )
 
     def update_plot(self):
-        """
-        update each plot with data and lines.
-        """
-
+        """Update each plot with data and lines."""
         self.message_te.append(
-            "Downloading LUT from sensor, this will take a few minutes."
+            "Downloading LUT from sensor, this will take a few minutes.",
         )
 
         self.get_lut_from_sensor()
 
         self.get_deviations()
 
-        self.line_x_diff_1.setData(self.counts_x_temp_1, self.deviations_x_temp_1)
-        self.line_y_diff_1.setData(self.counts_y_temp_1, self.deviations_y_temp_1)
+        self.line_x_diff_1.setData(
+            self.counts_x_temp_1,
+            self.deviations_x_temp_1,
+        )
+        self.line_y_diff_1.setData(
+            self.counts_y_temp_1,
+            self.deviations_y_temp_1,
+        )
 
-        self.line_x_diff_2.setData(self.counts_x_temp_2, self.deviations_x_temp_2)
-        self.line_y_diff_2.setData(self.counts_y_temp_2, self.deviations_y_temp_2)
+        self.line_x_diff_2.setData(
+            self.counts_x_temp_2,
+            self.deviations_x_temp_2,
+        )
+        self.line_y_diff_2.setData(
+            self.counts_y_temp_2,
+            self.deviations_y_temp_2,
+        )
 
-        self.line_x_diff_3.setData(self.counts_x_temp_3, self.deviations_x_temp_3)
-        self.line_y_diff_3.setData(self.counts_y_temp_3, self.deviations_y_temp_3)
+        self.line_x_diff_3.setData(
+            self.counts_x_temp_3,
+            self.deviations_x_temp_3,
+        )
+        self.line_y_diff_3.setData(
+            self.counts_y_temp_3,
+            self.deviations_y_temp_3,
+        )
 
         self.line_x_temp_1.setData(self.counts_x_temp_1, self.lut_x_temp_1)
         self.line_y_temp_1.setData(self.counts_y_temp_1, self.lut_y_temp_1)
@@ -602,10 +647,7 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
         self.line_y_temp_3.setData(self.counts_x_temp_3, self.lut_y_temp_3)
 
     def connect_to_sensor(self):
-        """
-        Open a serial connection to a JDx.
-        """
-
+        """Open a serial connection to a JDx."""
         port = self.port_cb.currentText()
         baud = int(self.baud_cb.currentText())
         parity = self.parity_cb.currentText()
@@ -622,9 +664,7 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
             self.connected_to_sensor = True
 
     def send_command(self):
-        """
-        Send ascii data to sensor and read response.
-        """
+        """Send ascii data to sensor and read response."""
         if self.connected_to_sensor is True:
             data = self.command_le.text()
             send_serial_data(self.sensor, f"{data}\r\n")
@@ -634,35 +674,33 @@ class JDx_Configuration_Window(QtWidgets.QMainWindow):
             self.message_te.append("Not connected to the sensor.")
 
     def export_plots(self):
-        """
-        save plots to png files based on the serial number of the sensor.
-        """
-
-        exporter_diff = pyqtgraph.exporters.ImageExporter(self.diff_plot.plotItem)
+        """Save plots to png files based on the serial number of the sensor."""
+        exporter_diff = pyqtgraph.exporters.ImageExporter(
+            self.diff_plot.plotItem,
+        )
         deviation_plot_file = os.path.join(
-            self.base, f"{self.serial_no_le.text()}_Deviations_plot.png"
+            self.base,
+            f"{self.serial_no_le.text()}_Deviations_plot.png",
         )
         exporter_diff.export(deviation_plot_file)
 
         exporter = pyqtgraph.exporters.ImageExporter(self.plot.plotItem)
         # save to file
         lut_plot_file = os.path.join(
-            self.base, f"{self.serial_no_le.text()}_LUT_plot.png"
+            self.base,
+            f"{self.serial_no_le.text()}_LUT_plot.png",
         )
         exporter.export(lut_plot_file)
 
         self.message_te.append(f"Finished exporting plots to {self.base}.")
 
     def exit(self):
-        """
-        Close the app.
-        """
+        """Close the app."""
         self.close()
-        return
 
 
 def jdx_display_window_window():
-    """open the window and start the app."""
+    """Open the window and start the app."""
     app = QtWidgets.QApplication(sys.argv)
     window = JDx_Configuration_Window()  # noqa: F841
     app.exec_()
