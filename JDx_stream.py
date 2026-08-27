@@ -20,7 +20,7 @@ def serial_send(dev, packet):
 
 
 def serial_read(dev):
-    return dev.readline().decode("utf-8")
+    return dev.readline().decode("utf-8", errors="replace")
 
 
 def autodetect_jdx():

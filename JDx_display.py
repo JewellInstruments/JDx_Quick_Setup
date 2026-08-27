@@ -204,7 +204,7 @@ def read_serial_data(connection: serial.Serial) -> str:
         str: data returned from open serial connection
 
     """
-    return connection.readline().decode("utf-8")
+    return connection.readline().decode("utf-8", errors="replace")
 
 
 def read_modbus_packet(connection: Modbus_master.ModbusMaster, device: int):
@@ -379,7 +379,7 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         )
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(50)
+        self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_plot)
 
         self.connected_to_sensor = False
@@ -400,8 +400,12 @@ class JDx_Display_Window(QtWidgets.QMainWindow):
         if self.modbus_ch_bo.isChecked():
             data = read_modbus_packet(self.sensor, int(self.unit_id_le.text()))
         else:
-            send_serial_data(self.sensor, ";000,v,v\r\n")
-            data = read_serial_data(self.sensor).replace("+", "")
+            try:
+                send_serial_data(self.sensor, ";000,v,v\r\n")
+                data = read_serial_data(self.sensor).replace("+", "")
+            except UnicodeEncodeError:
+                send_serial_data(self.sensor, ";000,v,v\r\n")
+                data = read_serial_data(self.sensor).replace("+", "")
 
         with open(self.log_filepath_le.text(), "a") as file:
             date_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
